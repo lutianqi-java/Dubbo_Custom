@@ -6,14 +6,11 @@ import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
-public class RegistryBeanDefinitionParse implements BeanDefinitionParser {
+public class ServiceBeanDefinitionParse implements BeanDefinitionParser {
 
-    /**
-     * Register  这个类，解析对应的xml  并注册
-     */
     private Class<?> beanClass;
 
-    public RegistryBeanDefinitionParse(Class<?> beanClass) {
+    public ServiceBeanDefinitionParse(Class<?> beanClass) {
         this.beanClass = beanClass;
     }
 
@@ -21,18 +18,23 @@ public class RegistryBeanDefinitionParse implements BeanDefinitionParser {
         RootBeanDefinition rootBeanDefinition = new RootBeanDefinition();
         rootBeanDefinition.setBeanClass(beanClass);
         rootBeanDefinition.setLazyInit(false);
+        String intf = element.getAttribute("intf");
+        String ref = element.getAttribute("ref");
         String protocol = element.getAttribute("protocol");
-        String address = element.getAttribute("address");
+        if (intf == null || "".equals(intf)) {
+            throw new RuntimeException("intf不能为空");
+        }
+        if (ref == null || "".equals(ref)) {
+            throw new RuntimeException("ref不能为空");
+        }
         if (protocol == null || "".equals(protocol)) {
             throw new RuntimeException("protocol不能为空");
         }
-        if (address == null || "".equals(address)) {
-            throw new RuntimeException("address不能为空");
-        }
+        rootBeanDefinition.getPropertyValues().add("intf", intf);
+        rootBeanDefinition.getPropertyValues().add("ref", ref);
         rootBeanDefinition.getPropertyValues().add("protocol", protocol);
-        rootBeanDefinition.getPropertyValues().add("address", address);
         parserContext.getRegistry()
-                .registerBeanDefinition("Registry" + address, rootBeanDefinition);
+                .registerBeanDefinition("Service" + intf + ref + protocol, rootBeanDefinition);
         return rootBeanDefinition;
     }
 }

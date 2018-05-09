@@ -6,14 +6,11 @@ import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
-public class RegistryBeanDefinitionParse implements BeanDefinitionParser {
+public class ReferenceBeanDefinitionParse implements BeanDefinitionParser {
 
-    /**
-     * Register  这个类，解析对应的xml  并注册
-     */
     private Class<?> beanClass;
 
-    public RegistryBeanDefinitionParse(Class<?> beanClass) {
+    public ReferenceBeanDefinitionParse(Class<?> beanClass) {
         this.beanClass = beanClass;
     }
 
@@ -21,18 +18,28 @@ public class RegistryBeanDefinitionParse implements BeanDefinitionParser {
         RootBeanDefinition rootBeanDefinition = new RootBeanDefinition();
         rootBeanDefinition.setBeanClass(beanClass);
         rootBeanDefinition.setLazyInit(false);
+        String id = element.getAttribute("id");
+        String intf = element.getAttribute("interface");
+        String loadbalance = element.getAttribute("loadbalance");
         String protocol = element.getAttribute("protocol");
-        String address = element.getAttribute("address");
+        if (id == null || "".equals(id)) {
+            throw new RuntimeException("id不能为空");
+        }
+        if (intf == null || "".equals(intf)) {
+            throw new RuntimeException("intf不能为空");
+        }
+        if (loadbalance == null || "".equals(loadbalance)) {
+            throw new RuntimeException("loadbalance不能为空");
+        }
         if (protocol == null || "".equals(protocol)) {
             throw new RuntimeException("protocol不能为空");
         }
-        if (address == null || "".equals(address)) {
-            throw new RuntimeException("address不能为空");
-        }
+        rootBeanDefinition.getPropertyValues().add("id", id);
+        rootBeanDefinition.getPropertyValues().add("intf", intf);
+        rootBeanDefinition.getPropertyValues().add("loadbalance", loadbalance);
         rootBeanDefinition.getPropertyValues().add("protocol", protocol);
-        rootBeanDefinition.getPropertyValues().add("address", address);
         parserContext.getRegistry()
-                .registerBeanDefinition("Registry" + address, rootBeanDefinition);
+                .registerBeanDefinition("Reference" + id , rootBeanDefinition);
         return rootBeanDefinition;
     }
 }
