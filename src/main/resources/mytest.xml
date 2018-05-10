@@ -27,6 +27,7 @@
     <bean id="testInitializingBean" class="com.soa.springDemo.TestInitializingBean" init-method="init"></bean>
 
 
+
     <bean id="factoryBeanPojo" class="com.soa.springDemo.FactoryBeanPojo">
         <property name="type" value="student"/>
     </bean>
